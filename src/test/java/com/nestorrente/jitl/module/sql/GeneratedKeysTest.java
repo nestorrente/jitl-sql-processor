@@ -33,7 +33,7 @@ public class GeneratedKeysTest {
 
 			System.out.println("DELETED " + stmt2.executeUpdate() + " ROWS");
 
-			con.commit();
+			con.rollback();
 
 		}
 
