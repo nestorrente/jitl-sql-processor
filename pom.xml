@@ -3,17 +3,16 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nestorrente</groupId>
-	<artifactId>jitl-sql-module</artifactId>
-	<version>1.0.2</version>
+	<artifactId>jitl-sql-post-processor</artifactId>
+	<version>2.0.0</version>
 	<name>Java Interface Template Library</name>
-	<description>A module for processing and executing SQL queries using Jitl interfaces.</description>
+	<description>A post-processor that adds SQL-queries-execution to Jitl.</description>
 
 	<properties>
-		<jitl.version>1.0.2</jitl.version>
+		<jitl.version>2.0.0</jitl.version>
 		<objenesis.version>2.5.1</objenesis.version>
 		<commons.lang.version>3.5</commons.lang.version>
 		<guava.version>21.0</guava.version>
-		<mysql.connector.version>6.0.5</mysql.connector.version>
 		<hsqldb.version>2.3.4</hsqldb.version>
 		<junit.version>4.12</junit.version>
 		<hamcrest.junit.version>2.0.0.0</hamcrest.junit.version>
@@ -43,13 +42,6 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${guava.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.connector.version}</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -113,6 +105,21 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+					<mainClass>org.hsqldb.Server</mainClass>
+					<arguments>
+						<argument>-database.0</argument>
+						<argument>res:/com/nestorrente/jitl/postprocessor/sql/database/yugioh</argument>
+						<argument>-dbname.0</argument>
+						<argument>yugioh</argument>
+					</arguments>
+				</configuration>
 			</plugin>
 
 		</plugins>

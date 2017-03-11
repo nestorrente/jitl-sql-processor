@@ -1,0 +1,16 @@
+CREATE SCHEMA PUBLIC AUTHORIZATION DBA
+CREATE USER SA PASSWORD ""
+GRANT DBA TO SA
+CREATE TABLE "trainers" ("id" INT IDENTITY PRIMARY KEY, "name" VARCHAR(50));
+CREATE TABLE "monsters" ("id" INT IDENTITY PRIMARY KEY, "name" VARCHAR(50), "level" INT, "attack" INT, "defense" INT);
+INSERT INTO "trainers" VALUES (1, 'Yugi Muto');
+INSERT INTO "trainers" VALUES (2, 'Seto Kaiba');
+INSERT INTO "trainers" VALUES (3, 'Joey Wheeler');
+INSERT INTO "monsters" VALUES (1, 'Blue-Eyes White Dragon', 8, 3000, 2500);
+INSERT INTO "monsters" VALUES (2, 'Dark Magician', 7, 2500, 2100);
+INSERT INTO "monsters" VALUES (3, 'Time Wizard', 2, 500, 400);
+INSERT INTO "monsters" VALUES (4, 'Red-Eyes Black Dragon', 7, 2400, 2000);
+INSERT INTO "monsters" VALUES (5, 'Summoned Skull', 6, 2500, 1200);
+INSERT INTO "monsters" VALUES (6, 'Gaia The Fierce Knight', 7, 2300, 2100);
+INSERT INTO "monsters" VALUES (7, 'Kuriboh', 1, 300, 200);
+INSERT INTO "monsters" VALUES (8, 'Obelisk the Tormentor', 10, 4000, 4000);
