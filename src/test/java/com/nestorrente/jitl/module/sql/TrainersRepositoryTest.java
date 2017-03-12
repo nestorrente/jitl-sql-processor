@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql;
+package com.nestorrente.jitl.module.sql;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,12 +13,13 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.nestorrente.jitl.Jitl;
+import com.nestorrente.jitl.module.sql.SQLModule;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class MonstersRepositoryTest {
+public class TrainersRepositoryTest {
 
 	private static Connection CONNECTION;
-	private static MonstersRepository REPO;
+	private static TrainersRepository REPO;
 
 	@BeforeClass
 	public static void openConnectionAndCreateRepository() throws ClassNotFoundException, SQLException {
@@ -29,12 +30,12 @@ public class MonstersRepositoryTest {
 		CONNECTION.setAutoCommit(false);
 
 		Jitl jitl = Jitl.builder()
-			.addPostProcessor(
-				SQLPostProcessor.builder(CONNECTION)
+			.addModule(
+				SQLModule.builder(CONNECTION)
 					.build())
 			.build();
 
-		REPO = jitl.getInstance(MonstersRepository.class);
+		REPO = jitl.getInstance(TrainersRepository.class);
 
 	}
 
@@ -50,25 +51,35 @@ public class MonstersRepositoryTest {
 	}
 
 	@Test
-	public void find5ReturnsSummonedSkull() {
+	public void _1_addReturns1() {
 
-		Monster monster = REPO.find(5);
+		int insertedId = REPO.add("Maximillion Pegasus");
 
-		assertEquals(5, monster.getId());
-		assertEquals("Summoned Skull", monster.getName());
-		assertEquals(6, monster.getLevel());
-		assertEquals(2500, monster.getAttack());
-		assertEquals(1200, monster.getDefense());
+		assertEquals(4, insertedId);
 
 	}
 
 	@Test
-	public void deleteByLevel7Returns3() {
+	public void _2_getName2ReturnsSetoKaiba() {
 
-		int affectedRows = REPO.deleteByLevel(7);
+		String name = REPO.getName(2);
 
-		assertEquals(3, affectedRows);
+		assertEquals("Seto Kaiba", name);
 
+	}
+
+	@Test
+	public void _3_updateReturns1() {
+
+		int affectedRows = REPO.update(1, "Yami Yugi");
+
+		assertEquals(1, affectedRows);
+
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void _4_deleteWithAffectedRowsReturningVoidThrowsException() {
+		REPO.delete(4);
 	}
 
 }

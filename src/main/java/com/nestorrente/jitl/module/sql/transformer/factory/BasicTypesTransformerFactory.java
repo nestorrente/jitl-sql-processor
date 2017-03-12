@@ -1,12 +1,12 @@
-package com.nestorrente.jitl.postprocessor.sql.transformer.factory;
+package com.nestorrente.jitl.module.sql.transformer.factory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.google.common.reflect.TypeToken;
-import com.nestorrente.jitl.postprocessor.sql.SQLPostProcessor;
-import com.nestorrente.jitl.postprocessor.sql.transformer.CellTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.SQLModule;
+import com.nestorrente.jitl.module.sql.transformer.CellTransformer;
+import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
 
 public class BasicTypesTransformerFactory implements ResultSetTransformerFactory {
 
@@ -24,7 +24,7 @@ public class BasicTypesTransformerFactory implements ResultSetTransformerFactory
 	private final CellTransformer<String> stringTransformer = (rs, i) -> rs.getString(i);
 
 	@Override
-	public ResultSetTransformer<?> get(SQLPostProcessor postProcessor, TypeToken<?> type) {
+	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
 		Class<?> clazz = type.getRawType();
 

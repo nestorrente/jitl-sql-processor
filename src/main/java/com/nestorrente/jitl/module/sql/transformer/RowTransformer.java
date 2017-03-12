@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql.transformer;
+package com.nestorrente.jitl.module.sql.transformer;
 
 import java.sql.ResultSet;
 

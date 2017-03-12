@@ -1,2 +1,2 @@
 # jitl-sql-post-processor
-Java Interface Template Library - SQL PostProcessor
+Java Interface Template Library - SQL Module

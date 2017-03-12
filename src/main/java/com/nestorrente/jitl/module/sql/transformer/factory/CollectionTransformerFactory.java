@@ -1,13 +1,13 @@
-package com.nestorrente.jitl.postprocessor.sql.transformer.factory;
+package com.nestorrente.jitl.module.sql.transformer.factory;
 
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.function.Supplier;
 
 import com.google.common.reflect.TypeToken;
-import com.nestorrente.jitl.postprocessor.sql.SQLPostProcessor;
-import com.nestorrente.jitl.postprocessor.sql.transformer.ResultSetTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.RowTransformer;
+import com.nestorrente.jitl.module.sql.SQLModule;
+import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.transformer.RowTransformer;
 import com.nestorrente.jitl.util.ReflectionUtils;
 
 public class CollectionTransformerFactory<C extends Collection<?>> implements ResultSetTransformerFactory {
@@ -22,7 +22,7 @@ public class CollectionTransformerFactory<C extends Collection<?>> implements Re
 	}
 
 	@Override
-	public ResultSetTransformer<?> get(SQLPostProcessor postProcessor, TypeToken<?> type) {
+	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
 		// Comprobamos si el tipo es una colección y si es asignable desde la implementación que tiene esta factory
 		if(!Collection.class.isAssignableFrom(type.getRawType()) || !type.getRawType().isAssignableFrom(this.collectionImplementationClass)) {
@@ -37,7 +37,7 @@ public class CollectionTransformerFactory<C extends Collection<?>> implements Re
 		RowTransformer<?> elementTransformer;
 
 		try {
-			elementTransformer = (RowTransformer<?>) postProcessor.getTransformer(elementType);
+			elementTransformer = (RowTransformer<?>) module.getTransformer(elementType);
 		} catch(ClassCastException ex) {
 			// TODO replace with a custom exception
 			throw new RuntimeException("Collection elements must be rows or cells of the result set, not an entire result set", ex);

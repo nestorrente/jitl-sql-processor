@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql;
+package com.nestorrente.jitl.module.sql;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.builder.Builder;
 
-import com.nestorrente.jitl.postprocessor.sql.transformer.ResultSetTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.ClassTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.HierarchyTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.ResultSetTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.transformer.factory.ClassTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.HierarchyTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.ResultSetTransformerFactory;
 import com.nestorrente.jitl.util.ArrayUtils;
 
-public class SQLPostProcessorBuilder implements Builder<SQLPostProcessor> {
+public class SQLModuleBuilder implements Builder<SQLModule> {
 
 	private final Supplier<Connection> connectionSupplier;
 	private final Consumer<Connection> connectionCloser;
@@ -27,7 +27,7 @@ public class SQLPostProcessorBuilder implements Builder<SQLPostProcessor> {
 	private Pattern statementParameterRegex;
 	private Function<String, String> columnNameConverter;
 
-	public SQLPostProcessorBuilder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
+	public SQLModuleBuilder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
 		this.connectionSupplier = connectionSupplier;
 		this.connectionCloser = connectionCloser;
 		this.statementParameterRegex = Pattern.compile(":([A-Za-z_][A-Za-z_0-9]*)");
@@ -36,48 +36,48 @@ public class SQLPostProcessorBuilder implements Builder<SQLPostProcessor> {
 		this.columnNameConverter = Function.identity();
 	}
 
-	public SQLPostProcessorBuilder addFileExtensions(Collection<String> extensions) {
+	public SQLModuleBuilder addFileExtensions(Collection<String> extensions) {
 		this.fileExtensions.addAll(extensions);
 		return this;
 	}
 
-	public SQLPostProcessorBuilder addFileExtensions(String... extensions) {
+	public SQLModuleBuilder addFileExtensions(String... extensions) {
 		ArrayUtils.addAll(this.fileExtensions, extensions);
 		return this;
 	}
 
-	public SQLPostProcessorBuilder addTransformerFactory(ResultSetTransformerFactory factory) {
+	public SQLModuleBuilder addTransformerFactory(ResultSetTransformerFactory factory) {
 		this.transformerFactories.add(factory);
 		return this;
 	}
 
-	public <T> SQLPostProcessorBuilder addTransformerFactory(Class<T> type, ResultSetTransformer<? extends T> transformer) {
+	public <T> SQLModuleBuilder addTransformerFactory(Class<T> type, ResultSetTransformer<? extends T> transformer) {
 		return this.addTransformerFactory(new ClassTransformerFactory<>(type, transformer));
 	}
 
-	public <T> SQLPostProcessorBuilder addHierarchyTransformerFactory(Class<T> lowerBound, Class<? super T> upperBound, ResultSetTransformer<? extends T> transformer) {
+	public <T> SQLModuleBuilder addHierarchyTransformerFactory(Class<T> lowerBound, Class<? super T> upperBound, ResultSetTransformer<? extends T> transformer) {
 		return this.addTransformerFactory(new HierarchyTransformerFactory<>(lowerBound, upperBound, transformer));
 	}
 
-	public SQLPostProcessorBuilder setStatementParameterRegex(String regex) {
+	public SQLModuleBuilder setStatementParameterRegex(String regex) {
 		return this.setStatementParameterRegex(Pattern.compile(regex));
 	}
 
-	public SQLPostProcessorBuilder setStatementParameterRegex(Pattern regex) {
+	public SQLModuleBuilder setStatementParameterRegex(Pattern regex) {
 		this.statementParameterRegex = regex;
 		return this;
 	}
 
-	public SQLPostProcessorBuilder setColumnNameConverter(Function<String, String> columnNameConveter) {
+	public SQLModuleBuilder setColumnNameConverter(Function<String, String> columnNameConveter) {
 		this.columnNameConverter = columnNameConveter;
 		return this;
 	}
 
 	@Override
-	public SQLPostProcessor build() {
+	public SQLModule build() {
 		Collections.reverse(this.transformerFactories);
 		Collections.reverse(this.fileExtensions);
-		return new SQLPostProcessor(this.connectionSupplier, this.connectionCloser, this.fileExtensions, this.transformerFactories, this.statementParameterRegex, this.columnNameConverter);
+		return new SQLModule(this.connectionSupplier, this.connectionCloser, this.fileExtensions, this.transformerFactories, this.statementParameterRegex, this.columnNameConverter);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql.transformer.factory;
+package com.nestorrente.jitl.module.sql.transformer.factory;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -7,10 +7,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.reflect.TypeToken;
-import com.nestorrente.jitl.postprocessor.sql.SQLPostProcessor;
-import com.nestorrente.jitl.postprocessor.sql.transformer.CellTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.ResultSetTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.RowTransformer;
+import com.nestorrente.jitl.module.sql.SQLModule;
+import com.nestorrente.jitl.module.sql.transformer.CellTransformer;
+import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.transformer.RowTransformer;
 import com.nestorrente.jitl.util.ReflectionUtils;
 
 public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSetTransformerFactory {
@@ -25,7 +25,7 @@ public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSe
 	}
 
 	@Override
-	public ResultSetTransformer<?> get(SQLPostProcessor postProcessor, TypeToken<?> type) {
+	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
 		// Comprobamos si el tipo es un mapa y si es asignable desde la implementación que tiene esta factory
 		if(!Map.class.isAssignableFrom(type.getRawType()) || !type.getRawType().isAssignableFrom(this.mapImplementationClass)) {
@@ -47,13 +47,13 @@ public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSe
 		CellTransformer<?> valueTransformer;
 
 		try {
-			valueTransformer = (CellTransformer<?>) postProcessor.getTransformer(valueType);
+			valueTransformer = (CellTransformer<?>) module.getTransformer(valueType);
 		} catch(ClassCastException ex) {
 			// TODO replace with a custom exception
 			throw new RuntimeException("Map values must be cells of the result set, not a row nor an entire result set", ex);
 		}
 
-		return new MapTransformer<>(postProcessor.getColumnNameConverter(), this.mapImplementationSupplier, valueTransformer);
+		return new MapTransformer<>(module.getColumnNameConverter(), this.mapImplementationSupplier, valueTransformer);
 
 	}
 

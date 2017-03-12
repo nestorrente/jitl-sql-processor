@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql;
+package com.nestorrente.jitl.module.sql;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -24,34 +24,34 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.nestorrente.jitl.Jitl;
-import com.nestorrente.jitl.postprocessor.JitlPostProcessor;
-import com.nestorrente.jitl.postprocessor.sql.annotation.AffectedRows;
-import com.nestorrente.jitl.postprocessor.sql.annotation.GeneratedKeys;
-import com.nestorrente.jitl.postprocessor.sql.transformer.CellTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.ResultSetTransformer;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.BasicTypesTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.ClassTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.CollectionTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.MapTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.ReflectiveTransformerFactory;
-import com.nestorrente.jitl.postprocessor.sql.transformer.factory.ResultSetTransformerFactory;
+import com.nestorrente.jitl.module.Module;
+import com.nestorrente.jitl.module.sql.annotation.AffectedRows;
+import com.nestorrente.jitl.module.sql.annotation.GeneratedKeys;
+import com.nestorrente.jitl.module.sql.transformer.CellTransformer;
+import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.transformer.factory.BasicTypesTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.ClassTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.CollectionTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.MapTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.ReflectiveTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.ResultSetTransformerFactory;
 import com.nestorrente.jitl.util.PatternUtils;
 import com.nestorrente.jitl.util.ReflectionUtils;
 import com.nestorrente.jitl.util.SqlUtils;
 import com.nestorrente.jitl.util.StringUtils;
 
-public class SQLPostProcessor extends JitlPostProcessor {
+public class SQLModule extends Module {
 
-	public static SQLPostProcessorBuilder builder(Connection connection) {
-		return new SQLPostProcessorBuilder(() -> connection, c -> {});
+	public static SQLModuleBuilder builder(Connection connection) {
+		return new SQLModuleBuilder(() -> connection, c -> {});
 	}
 
-	public static SQLPostProcessorBuilder builder(Supplier<Connection> connectionSupplier) {
-		return new SQLPostProcessorBuilder(connectionSupplier, c -> {});
+	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier) {
+		return new SQLModuleBuilder(connectionSupplier, c -> {});
 	}
 
-	public static SQLPostProcessorBuilder builder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
-		return new SQLPostProcessorBuilder(connectionSupplier, connectionCloser);
+	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
+		return new SQLModuleBuilder(connectionSupplier, connectionCloser);
 	}
 
 	private final Supplier<Connection> connectionSupplier;
@@ -60,7 +60,7 @@ public class SQLPostProcessor extends JitlPostProcessor {
 	private final Pattern statementParameterRegex;
 	private final Function<String, String> columnNameConverter;
 
-	SQLPostProcessor(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser, Collection<String> fileExtensions, Collection<ResultSetTransformerFactory> transformerFactories, Pattern statementParameterRegex, Function<String, String> columnNameConverter) {
+	SQLModule(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser, Collection<String> fileExtensions, Collection<ResultSetTransformerFactory> transformerFactories, Pattern statementParameterRegex, Function<String, String> columnNameConverter) {
 
 		super(ImmutableList.<String>builder().addAll(fileExtensions).add("sql").build());
 

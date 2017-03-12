@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql;
+package com.nestorrente.jitl.module.sql;
 
 public class Monster {
 

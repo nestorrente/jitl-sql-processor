@@ -1,8 +1,8 @@
-package com.nestorrente.jitl.postprocessor.sql.transformer.factory;
+package com.nestorrente.jitl.module.sql.transformer.factory;
 
 import com.google.common.reflect.TypeToken;
-import com.nestorrente.jitl.postprocessor.sql.SQLPostProcessor;
-import com.nestorrente.jitl.postprocessor.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.SQLModule;
+import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
 
 public class HierarchyTransformerFactory<T> implements ResultSetTransformerFactory {
 
@@ -18,7 +18,7 @@ public class HierarchyTransformerFactory<T> implements ResultSetTransformerFacto
 	}
 
 	@Override
-	public ResultSetTransformer<?> get(SQLPostProcessor postProcessor, TypeToken<?> type) {
+	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
 		Class<?> clazz = type.getRawType();
 

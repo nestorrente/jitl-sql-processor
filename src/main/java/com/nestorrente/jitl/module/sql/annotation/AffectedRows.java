@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.postprocessor.sql.annotation;
+package com.nestorrente.jitl.module.sql.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GeneratedKeys {
+public @interface AffectedRows {
 
 }
