@@ -24,7 +24,7 @@ public class CollectionTransformerFactory<C extends Collection<?>> implements Re
 	@Override
 	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
-		// Comprobamos si el tipo es una colección y si es asignable desde la implementación que tiene esta factory
+		// Ensure "type" is a Collection and it matches the current implementation
 		if(!Collection.class.isAssignableFrom(type.getRawType()) || !type.getRawType().isAssignableFrom(this.collectionImplementationClass)) {
 			return null;
 		}

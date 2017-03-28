@@ -13,9 +13,10 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.nestorrente.jitl.Jitl;
-import com.nestorrente.jitl.module.sql.SQLModule;
+import com.nestorrente.jitl.annotation.UseModule;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@UseModule(SQLModule.class)
 public class MonstersRepositoryTest {
 
 	private static Connection CONNECTION;
@@ -71,5 +72,40 @@ public class MonstersRepositoryTest {
 		assertEquals(3, affectedRows);
 
 	}
+
+	@Test
+	public void addLordOfDragonsReturns9() {
+
+		Monster monster = new Monster();
+		monster.setName("Lord of Dragons");
+		monster.setLevel(4);
+		monster.setAttack(1200);
+		monster.setDefense(1100);
+
+		int id = REPO.add(monster);
+
+		assertEquals(9, id);
+
+	}
+
+	@Test
+	public void findAllReturns9Monsters() {
+
+		Monster[] monsters = REPO.findAll();
+
+		assertEquals(6, monsters.length);
+
+	}
+
+	@Test
+	public void countMonstersByFirstLevel1Returns1() {
+
+		int count = REPO.countMonstersByFirstLevel(1);
+
+		assertEquals(1, count);
+
+	}
+
+	// TODO add tests using different types and accessors (array and index, array and property [must fail!], etc.)
 
 }

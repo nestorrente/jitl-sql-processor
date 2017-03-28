@@ -1,6 +1,5 @@
 package com.nestorrente.jitl.module.sql;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.Connection;
@@ -8,37 +7,49 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.nestorrente.jitl.Jitl;
 import com.nestorrente.jitl.module.Module;
+import com.nestorrente.jitl.module.sql.accessor.index.IndexAccessor;
+import com.nestorrente.jitl.module.sql.accessor.index.factory.ArrayIndexAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.index.factory.HierarchyIndexAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.index.factory.IndexAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.property.PropertyAccessor;
+import com.nestorrente.jitl.module.sql.accessor.property.factory.HierarchyPropertyAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.property.factory.PropertyAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.property.factory.ReflectivePropertyAccessorFactory;
 import com.nestorrente.jitl.module.sql.annotation.AffectedRows;
 import com.nestorrente.jitl.module.sql.annotation.GeneratedKeys;
 import com.nestorrente.jitl.module.sql.transformer.CellTransformer;
 import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
+import com.nestorrente.jitl.module.sql.transformer.factory.ArrayTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.BasicTypesTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.ClassTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.CollectionTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.MapTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.ReflectiveTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.ResultSetTransformerFactory;
-import com.nestorrente.jitl.util.PatternUtils;
 import com.nestorrente.jitl.util.ReflectionUtils;
 import com.nestorrente.jitl.util.SqlUtils;
-import com.nestorrente.jitl.util.StringUtils;
 
 public class SQLModule extends Module {
 
@@ -57,15 +68,19 @@ public class SQLModule extends Module {
 	private final Supplier<Connection> connectionSupplier;
 	private final Consumer<Connection> connectionCloser;
 	private final Collection<ResultSetTransformerFactory> transformerFactories;
-	private final Pattern statementParameterRegex;
+	private final Collection<PropertyAccessorFactory> propertyAccessorFactories;
+	private final Collection<IndexAccessorFactory> indexAccessorFactories;
 	private final Function<String, String> columnNameConverter;
 
-	SQLModule(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser, Collection<String> fileExtensions, Collection<ResultSetTransformerFactory> transformerFactories, Pattern statementParameterRegex, Function<String, String> columnNameConverter) {
+	SQLModule(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser, Collection<String> fileExtensions, Collection<ResultSetTransformerFactory> transformerFactories, Collection<PropertyAccessorFactory> propertyAccessorFactories, Collection<IndexAccessorFactory> indexAccessorFactories, Function<String, String> columnNameConverter) {
 
+		// TODO change this
 		super(ImmutableList.<String>builder().addAll(fileExtensions).add("sql").build());
 
 		this.connectionSupplier = connectionSupplier;
 		this.connectionCloser = connectionCloser;
+
+		// TODO reorganize transformers and accessors -> most used first (the reflection one must always be the last)
 
 		this.transformerFactories = new ArrayList<>(transformerFactories);
 		this.transformerFactories.add(new CollectionTransformerFactory<>(ArrayList.class, ArrayList::new));
@@ -76,13 +91,25 @@ public class SQLModule extends Module {
 		this.transformerFactories.add(new MapTransformerFactory<>(HashMap.class, HashMap::new));
 		this.transformerFactories.add(new MapTransformerFactory<>(LinkedHashMap.class, LinkedHashMap::new));
 		this.transformerFactories.add(new MapTransformerFactory<>(TreeMap.class, TreeMap::new));
+		this.transformerFactories.add(new ArrayTransformerFactory()); // arrays
 		this.transformerFactories.add(new BasicTypesTransformerFactory()); // primitive types, its wrappers and String class
 		this.transformerFactories.add(new ClassTransformerFactory<>(Object.class, (CellTransformer<?>) (rs, i) -> SqlUtils.getObject(rs, i)));
 		this.transformerFactories.add(new ReflectiveTransformerFactory()); // fallback for every class
 
-		this.statementParameterRegex = statementParameterRegex;
-
 		this.columnNameConverter = columnNameConverter;
+
+		this.propertyAccessorFactories = new ArrayList<>(propertyAccessorFactories);
+		this.propertyAccessorFactories.add(new HierarchyPropertyAccessorFactory<>(Map.class, (o, k) -> o.get(k)));
+		this.propertyAccessorFactories.add(new ReflectivePropertyAccessorFactory()); // fallback for every class
+
+		this.indexAccessorFactories = new ArrayList<>(indexAccessorFactories);
+		this.indexAccessorFactories.add(new ArrayIndexAccessorFactory<>());
+		this.indexAccessorFactories.add(new HierarchyIndexAccessorFactory<>(List.class, (o, i) -> o.get(i)));
+		this.indexAccessorFactories.add(new HierarchyIndexAccessorFactory<>(Collection.class, (Object o, int i) -> CollectionUtils.get(o, i)));
+		this.indexAccessorFactories.add(new HierarchyIndexAccessorFactory<>(Iterable.class, (Object o, int i) -> CollectionUtils.get(o, i)));
+		this.indexAccessorFactories.add(new HierarchyIndexAccessorFactory<>(Iterator.class, (Object o, int i) -> CollectionUtils.get(o, i)));
+		this.indexAccessorFactories.add(new HierarchyIndexAccessorFactory<>(Enumeration.class, (Object o, int i) -> CollectionUtils.get(o, i)));
+		this.indexAccessorFactories.add(new HierarchyIndexAccessorFactory<>(String.class, (o, i) -> o.charAt(i)));
 
 	}
 
@@ -141,6 +168,42 @@ public class SQLModule extends Module {
 
 	}
 
+	public <T> PropertyAccessor<T> getPropertyAccessor(Class<T> type) {
+
+		for(PropertyAccessorFactory factory : this.propertyAccessorFactories) {
+
+			@SuppressWarnings("unchecked")
+			PropertyAccessor<T> accessor = (PropertyAccessor<T>) factory.get(this, type);
+
+			if(accessor != null) {
+				return accessor;
+			}
+
+		}
+
+		// TODO replace with a custom exception
+		throw new RuntimeException("No property accessor found for type: " + type);
+
+	}
+
+	public <T> IndexAccessor<T> getIndexAccessor(Class<T> type) {
+
+		for(IndexAccessorFactory factory : this.indexAccessorFactories) {
+
+			@SuppressWarnings("unchecked")
+			IndexAccessor<T> accessor = (IndexAccessor<T>) factory.get(this, type);
+
+			if(accessor != null) {
+				return accessor;
+			}
+
+		}
+
+		// TODO replace with a custom exception
+		throw new RuntimeException("No property accessor found for type: " + type);
+
+	}
+
 	public Function<String, String> getColumnNameConverter() {
 		return this.columnNameConverter;
 	}
@@ -148,11 +211,13 @@ public class SQLModule extends Module {
 	@Override
 	public Object postProcess(Jitl jitl, Method method, String renderedTemplate, Map<String, Object> parameters) throws Exception {
 
-		// TODO clean this method
+		// TODO clean and split this method
 
-		Collection<Object> queryParametersValues = new ArrayList<>();
+		Pair<String, Collection<Object>> parseData = QueryParser.parse(this, renderedTemplate, parameters);
 
-		String postProcessedTemplate = PatternUtils.replace(renderedTemplate, this.statementParameterRegex, (match, backrefs) -> this.processParameter(backrefs[1], parameters, queryParametersValues));
+		Collection<Object> queryParametersValues = parseData.getRight();
+
+		String postProcessedTemplate = parseData.getLeft();
 
 		boolean returnAffectedRows = method.isAnnotationPresent(AffectedRows.class);
 		boolean returnGeneratedKeys = method.isAnnotationPresent(GeneratedKeys.class);
@@ -212,6 +277,8 @@ public class SQLModule extends Module {
 				// Nothing to return
 				return null;
 
+				// TODO throw an exception instead of returning null?
+
 			} else {
 
 				// TODO replace with a custom exception
@@ -236,38 +303,6 @@ public class SQLModule extends Module {
 			this.connectionCloser.accept(connection);
 
 		}
-
-	}
-
-	// TODO refactor this, taking this methods away to another class?
-
-	private String processParameter(String parameterName, Map<String, Object> parameters, Collection<Object> parametersValues) {
-
-		if(!parameters.containsKey(parameterName)) {
-			throw new IllegalArgumentException(String.format("Unknown query parameter: %s", parameterName));
-		}
-
-		Object value = parameters.get(parameterName);
-
-		if(value instanceof Collection) {
-
-			parametersValues.addAll((Collection<?>) value);
-
-			return StringUtils.joinRepeating("?", ", ", ((Collection<?>) value).size());
-
-		}
-
-		if(ReflectionUtils.isArray(value)) {
-
-			ReflectionUtils.addAllFromArray(parametersValues, value);
-
-			return StringUtils.joinRepeating("?", ", ", Array.getLength(value));
-
-		}
-
-		// When the value isn't neither a collection or an array, we treat it as a single value
-		parametersValues.add(value);
-		return "?";
 
 	}
 

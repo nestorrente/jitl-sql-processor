@@ -8,10 +8,17 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.builder.Builder;
 
+import com.nestorrente.jitl.module.sql.accessor.index.IndexAccessor;
+import com.nestorrente.jitl.module.sql.accessor.index.factory.ClassIndexAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.index.factory.HierarchyIndexAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.index.factory.IndexAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.property.PropertyAccessor;
+import com.nestorrente.jitl.module.sql.accessor.property.factory.ClassPropertyAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.property.factory.HierarchyPropertyAccessorFactory;
+import com.nestorrente.jitl.module.sql.accessor.property.factory.PropertyAccessorFactory;
 import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
 import com.nestorrente.jitl.module.sql.transformer.factory.ClassTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.HierarchyTransformerFactory;
@@ -24,15 +31,17 @@ public class SQLModuleBuilder implements Builder<SQLModule> {
 	private final Consumer<Connection> connectionCloser;
 	private final List<String> fileExtensions;
 	private final List<ResultSetTransformerFactory> transformerFactories;
-	private Pattern statementParameterRegex;
+	private final List<PropertyAccessorFactory> propertyAccessorFactories;
+	private final List<IndexAccessorFactory> indexAccessorFactories;
 	private Function<String, String> columnNameConverter;
 
 	public SQLModuleBuilder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
 		this.connectionSupplier = connectionSupplier;
 		this.connectionCloser = connectionCloser;
-		this.statementParameterRegex = Pattern.compile(":([A-Za-z_][A-Za-z_0-9]*)");
 		this.fileExtensions = new ArrayList<>();
 		this.transformerFactories = new ArrayList<>();
+		this.propertyAccessorFactories = new ArrayList<>();
+		this.indexAccessorFactories = new ArrayList<>();
 		this.columnNameConverter = Function.identity();
 	}
 
@@ -46,6 +55,8 @@ public class SQLModuleBuilder implements Builder<SQLModule> {
 		return this;
 	}
 
+	// TODO create a Iterable transformer factory? Maybe the Collection one can be adapted for any Iterable instead of any Collection
+	// TODO create Iterator and Enumeration transformer factories?
 	public SQLModuleBuilder addTransformerFactory(ResultSetTransformerFactory factory) {
 		this.transformerFactories.add(factory);
 		return this;
@@ -59,13 +70,30 @@ public class SQLModuleBuilder implements Builder<SQLModule> {
 		return this.addTransformerFactory(new HierarchyTransformerFactory<>(lowerBound, upperBound, transformer));
 	}
 
-	public SQLModuleBuilder setStatementParameterRegex(String regex) {
-		return this.setStatementParameterRegex(Pattern.compile(regex));
+	public SQLModuleBuilder addPropertyAccessorFactory(PropertyAccessorFactory factory) {
+		this.propertyAccessorFactories.add(factory);
+		return this;
 	}
 
-	public SQLModuleBuilder setStatementParameterRegex(Pattern regex) {
-		this.statementParameterRegex = regex;
+	public <T> SQLModuleBuilder addPropertyAccessorFactory(Class<T> type, PropertyAccessor<? super T> transformer) {
+		return this.addPropertyAccessorFactory(new ClassPropertyAccessorFactory<>(type, transformer));
+	}
+
+	public <T> SQLModuleBuilder addHierarchyPropertyAccessorFactory(Class<T> upperBound, PropertyAccessor<? super T> transformer) {
+		return this.addPropertyAccessorFactory(new HierarchyPropertyAccessorFactory<>(upperBound, transformer));
+	}
+
+	public SQLModuleBuilder addIndexAccessorFactory(IndexAccessorFactory factory) {
+		this.indexAccessorFactories.add(factory);
 		return this;
+	}
+
+	public <T> SQLModuleBuilder addIndexAccessorFactory(Class<T> type, IndexAccessor<? super T> transformer) {
+		return this.addIndexAccessorFactory(new ClassIndexAccessorFactory<>(type, transformer));
+	}
+
+	public <T> SQLModuleBuilder addHierarchyIndexAccessorFactory(Class<T> upperBound, IndexAccessor<? super T> transformer) {
+		return this.addIndexAccessorFactory(new HierarchyIndexAccessorFactory<>(upperBound, transformer));
 	}
 
 	public SQLModuleBuilder setColumnNameConverter(Function<String, String> columnNameConveter) {
@@ -77,7 +105,7 @@ public class SQLModuleBuilder implements Builder<SQLModule> {
 	public SQLModule build() {
 		Collections.reverse(this.transformerFactories);
 		Collections.reverse(this.fileExtensions);
-		return new SQLModule(this.connectionSupplier, this.connectionCloser, this.fileExtensions, this.transformerFactories, this.statementParameterRegex, this.columnNameConverter);
+		return new SQLModule(this.connectionSupplier, this.connectionCloser, this.fileExtensions, this.transformerFactories, this.propertyAccessorFactories, this.indexAccessorFactories, this.columnNameConverter);
 	}
 
 }

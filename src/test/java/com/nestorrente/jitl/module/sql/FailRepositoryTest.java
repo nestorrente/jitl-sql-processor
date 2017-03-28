@@ -1,7 +1,5 @@
 package com.nestorrente.jitl.module.sql;
 
-import static org.junit.Assert.assertEquals;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -13,12 +11,14 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.nestorrente.jitl.Jitl;
+import com.nestorrente.jitl.annotation.UseModule;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TrainersRepositoryTest {
+@UseModule(SQLModule.class)
+public class FailRepositoryTest {
 
 	private static Connection CONNECTION;
-	private static TrainersRepository REPO;
+	private static FailRepository REPO;
 
 	@BeforeClass
 	public static void openConnectionAndCreateRepository() throws ClassNotFoundException, SQLException {
@@ -34,7 +34,7 @@ public class TrainersRepositoryTest {
 					.build())
 			.build();
 
-		REPO = jitl.getInstance(TrainersRepository.class);
+		REPO = jitl.getInstance(FailRepository.class);
 
 	}
 
@@ -49,36 +49,14 @@ public class TrainersRepositoryTest {
 
 	}
 
-	@Test
-	public void _1_addReturns1() {
-
-		int insertedId = REPO.add("Maximillion Pegasus");
-
-		assertEquals(4, insertedId);
-
-	}
-
-	@Test
-	public void _2_getName2ReturnsSetoKaiba() {
-
-		String name = REPO.getName(2);
-
-		assertEquals("Seto Kaiba", name);
-
-	}
-
-	@Test
-	public void _3_updateReturns1() {
-
-		int affectedRows = REPO.update(1, "Yami Yugi");
-
-		assertEquals(1, affectedRows);
-
+	@Test(expected = RuntimeException.class)
+	public void arrayAccessByPropertyThrowsRuntimeException() {
+		REPO.arrayAccessByProperty(1);
 	}
 
 	@Test(expected = RuntimeException.class)
-	public void _4_deleteWithAffectedRowsReturningVoidThrowsException() {
-		REPO.delete(4);
+	public void pojoAccessByIndexThrowsRuntimeException() {
+		REPO.pojoAccessByIndex(new Monster());
 	}
 
 }

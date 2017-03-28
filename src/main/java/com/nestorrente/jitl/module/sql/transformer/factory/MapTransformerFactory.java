@@ -27,7 +27,7 @@ public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSe
 	@Override
 	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
-		// Comprobamos si el tipo es un mapa y si es asignable desde la implementación que tiene esta factory
+		// Ensure "type" is a Map and it matches the current implementation
 		if(!Map.class.isAssignableFrom(type.getRawType()) || !type.getRawType().isAssignableFrom(this.mapImplementationClass)) {
 			return null;
 		}

@@ -19,7 +19,7 @@ public class ReflectiveTransformerFactory implements ResultSetTransformerFactory
 	@Override
 	public ResultSetTransformer<?> get(SQLModule module, TypeToken<?> type) {
 
-		if(type.equals(Object.class) || type.isArray()) {
+		if(Object.class.equals(type.getRawType()) || type.isArray()) {
 			return null;
 		}
 
@@ -58,7 +58,7 @@ public class ReflectiveTransformerFactory implements ResultSetTransformerFactory
 
 				Object fieldValue = fieldTransformer.transformCell(resultSet, i);
 
-				ReflectionUtils.setField(obj, field, fieldValue);
+				ReflectionUtils.setFieldValue(obj, field, fieldValue);
 
 			}
 
