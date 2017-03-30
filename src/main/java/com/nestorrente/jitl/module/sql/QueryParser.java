@@ -166,6 +166,7 @@ class QueryParser implements Closeable {
 
 	// FIXME this is mocked
 	// TODO add some kind of "type resolver"s? They will receive an object then they will return a Collection of objects that must be interpreted as multiple question marks ("?")
+	// TODO this resolvers must be called recursively or not? Think about that.
 	private void addParameterToQuery(Object value) {
 
 		if(value instanceof Collection) {

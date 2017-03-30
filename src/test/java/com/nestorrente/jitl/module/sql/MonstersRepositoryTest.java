@@ -13,10 +13,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.nestorrente.jitl.Jitl;
-import com.nestorrente.jitl.annotation.UseModule;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@UseModule(SQLModule.class)
 public class MonstersRepositoryTest {
 
 	private static Connection CONNECTION;
