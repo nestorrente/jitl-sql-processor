@@ -10,8 +10,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.nestorrente.jitl.module.sql.accessor.index.IndexAccessor;
 import com.nestorrente.jitl.module.sql.accessor.property.PropertyAccessor;
 import com.nestorrente.jitl.util.ReflectionUtils;
@@ -26,7 +24,7 @@ class QueryParser implements Closeable {
 	private static final char INDEX_ACCESSOR_START_CHAR = '[';
 	private static final char INDEX_ACCESSOR_END_CHAR = ']';
 
-	public static Pair<String, Collection<Object>> parse(SQLModule module, String query, Map<String, Object> parameters) {
+	public static ParsedQueryData parse(SQLModule module, String query, Map<String, Object> parameters) {
 		try(QueryParser queryParser = new QueryParser(module, query, parameters)) {
 			return queryParser.parse();
 		}
@@ -46,9 +44,9 @@ class QueryParser implements Closeable {
 		this.outputParameters = new ArrayList<>();
 	}
 
-	public Pair<String, Collection<Object>> parse() {
+	public ParsedQueryData parse() {
 		this.readChunk();
-		return Pair.of(this.builder.toString(), this.outputParameters);
+		return new ParsedQueryData(this.builder.toString(), this.outputParameters);
 	}
 
 	private int readChar() {

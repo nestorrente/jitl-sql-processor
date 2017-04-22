@@ -23,7 +23,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
@@ -202,11 +201,10 @@ public class SQLModule extends Module {
 
 		// TODO clean and split this method
 
-		Pair<String, Collection<Object>> parseData = QueryParser.parse(this, renderedTemplate, parameters);
+		ParsedQueryData parseData = QueryParser.parse(this, renderedTemplate, parameters);
 
-		Collection<Object> queryParametersValues = parseData.getRight();
-
-		String postProcessedTemplate = parseData.getLeft();
+		String postProcessedTemplate = parseData.getSqlCode();
+		Collection<Object> queryParametersValues = parseData.getParametersValues();
 
 		boolean returnAffectedRows = method.isAnnotationPresent(AffectedRows.class);
 		boolean returnGeneratedKeys = method.isAnnotationPresent(GeneratedKeys.class);
