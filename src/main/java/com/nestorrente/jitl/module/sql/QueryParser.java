@@ -24,12 +24,6 @@ class QueryParser implements Closeable {
 	private static final char INDEX_ACCESSOR_START_CHAR = '[';
 	private static final char INDEX_ACCESSOR_END_CHAR = ']';
 
-	public static ParsedQueryData parse(SQLModule module, String query, Map<String, Object> parameters) {
-		try(QueryParser queryParser = new QueryParser(module, query, parameters)) {
-			return queryParser.parse();
-		}
-	}
-
 	private final SQLModule module;
 	private final PushbackReader reader;
 	private final Map<String, Object> inputParameters;
@@ -273,6 +267,12 @@ class QueryParser implements Closeable {
 		} catch(IOException ex) {
 			// TODO replace with a custom exception (RuntimeIOException?)
 			throw new RuntimeException(ex);
+		}
+	}
+
+	public static ParsedQueryData parse(SQLModule module, String query, Map<String, Object> parameters) {
+		try(QueryParser queryParser = new QueryParser(module, query, parameters)) {
+			return queryParser.parse();
 		}
 	}
 
