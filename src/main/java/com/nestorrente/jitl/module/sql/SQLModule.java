@@ -53,18 +53,6 @@ import com.nestorrente.jitl.util.SqlUtils;
 
 public class SQLModule extends Module {
 
-	public static SQLModuleBuilder builder(Connection connection) {
-		return new SQLModuleBuilder(() -> connection, c -> {});
-	}
-
-	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier) {
-		return new SQLModuleBuilder(connectionSupplier, c -> {});
-	}
-
-	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
-		return new SQLModuleBuilder(connectionSupplier, connectionCloser);
-	}
-
 	private final Supplier<Connection> connectionSupplier;
 	private final Consumer<Connection> connectionCloser;
 	private final Collection<ResultSetTransformerFactory> transformerFactories;
@@ -147,6 +135,7 @@ public class SQLModule extends Module {
 
 			if(!skipFactoryFound) {
 
+				// We use == operator on purpose - we want to guarantee not the equality, but the identity
 				if(factory == skipFactory) {
 					skipFactoryFound = true;
 				}
@@ -304,6 +293,32 @@ public class SQLModule extends Module {
 
 		}
 
+	}
+
+	/* Build methods */
+
+	public static SQLModuleBuilder builder(Connection connection) {
+		return new SQLModuleBuilder(() -> connection, c -> {});
+	}
+
+	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier) {
+		return new SQLModuleBuilder(connectionSupplier, c -> {});
+	}
+
+	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
+		return new SQLModuleBuilder(connectionSupplier, connectionCloser);
+	}
+
+	public static SQLModule defaultInstance(Connection connection) {
+		return builder(connection).build();
+	}
+
+	public static SQLModule defaultInstance(Supplier<Connection> connectionSupplier) {
+		return builder(connectionSupplier).build();
+	}
+
+	public static SQLModule defaultInstance(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser) {
+		return builder(connectionSupplier, connectionCloser).build();
 	}
 
 }

@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nestorrente</groupId>
 	<artifactId>jitl-sql-module</artifactId>
-	<version>3.0.0</version>
+	<version>4.0.0</version>
 	<name>Java Interface Template Library</name>
 	<description>A module that adds SQL-queries-execution to Jitl.</description>
 
 	<properties>
-		<jitl.version>3.0.0</jitl.version>
+		<jitl.version>4.0.0</jitl.version>
 		<objenesis.version>2.5.1</objenesis.version>
 		<commons.lang.version>3.5</commons.lang.version>
 		<guava.version>21.0</guava.version>

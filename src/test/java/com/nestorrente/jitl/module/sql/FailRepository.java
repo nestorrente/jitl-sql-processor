@@ -1,10 +1,10 @@
 package com.nestorrente.jitl.module.sql;
 
 import com.nestorrente.jitl.annotation.InlineTemplate;
-import com.nestorrente.jitl.annotation.Module;
+import com.nestorrente.jitl.annotation.UseModule;
 import com.nestorrente.jitl.annotation.Param;
 
-@Module(SQLModule.class)
+@UseModule(SQLModule.class)
 public interface FailRepository {
 
 	@InlineTemplate("SELECT COUNT(*) FROM \"monsters\" WHERE \"level\" = :levels.first")

@@ -18,7 +18,7 @@ Meanwhile, you can learn more about JITL in **[jitl-core GitHub page](https://gi
 	<dependency>
 		<groupId>com.nestorrente</groupId>
 		<artifactId>jitl-sql-module</artifactId>
-		<version>2.0.0</version>
+		<version>4.0.0</version>
 	</dependency>
 </dependencies>
 ```

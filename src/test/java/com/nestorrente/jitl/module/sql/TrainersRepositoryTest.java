@@ -29,9 +29,7 @@ public class TrainersRepositoryTest {
 		CONNECTION.setAutoCommit(false);
 
 		Jitl jitl = Jitl.builder()
-			.addModule(
-				SQLModule.builder(CONNECTION)
-					.build())
+			.addModule(SQLModule.defaultInstance(CONNECTION))
 			.build();
 
 		REPO = jitl.getInstance(TrainersRepository.class);
@@ -50,7 +48,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test
-	public void _1_addReturns1() {
+	public void test1addReturns1() {
 
 		int insertedId = REPO.add("Maximillion Pegasus");
 
@@ -59,7 +57,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test
-	public void _2_getName2ReturnsSetoKaiba() {
+	public void test2getName2ReturnsSetoKaiba() {
 
 		String name = REPO.getName(2);
 
@@ -68,7 +66,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test
-	public void _3_updateReturns1() {
+	public void test3updateReturns1() {
 
 		int affectedRows = REPO.update(1, "Yami Yugi");
 
@@ -77,7 +75,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test(expected = RuntimeException.class)
-	public void _4_deleteWithAffectedRowsReturningVoidThrowsException() {
+	public void test4deleteWithAffectedRowsReturningVoidThrowsException() {
 		REPO.delete(4);
 	}
 

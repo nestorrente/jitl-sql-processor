@@ -27,9 +27,7 @@ public class FailRepositoryTest {
 		CONNECTION.setAutoCommit(false);
 
 		Jitl jitl = Jitl.builder()
-			.addModule(
-				SQLModule.builder(CONNECTION)
-					.build())
+			.addModule(SQLModule.defaultInstance(CONNECTION))
 			.build();
 
 		REPO = jitl.getInstance(FailRepository.class);
