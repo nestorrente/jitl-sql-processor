@@ -1,11 +1,13 @@
 package com.nestorrente.jitl.module.sql;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.jooq.lambda.Unchecked;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -29,7 +31,7 @@ public class MonstersRepositoryTest {
 		CONNECTION.setAutoCommit(false);
 
 		Jitl jitl = Jitl.builder()
-			.addModule(SQLModule.defaultInstance(CONNECTION))
+			.addModule(SQLModule.defaultInstance(() -> CONNECTION, Unchecked.consumer(con -> con.rollback())))
 			.build();
 
 		REPO = jitl.getInstance(MonstersRepository.class);
@@ -38,13 +40,7 @@ public class MonstersRepositoryTest {
 
 	@AfterClass
 	public static void closeConnection() throws ClassNotFoundException, SQLException {
-
-		try {
-			CONNECTION.rollback();
-		} finally {
-			CONNECTION.close();
-		}
-
+		CONNECTION.close();
 	}
 
 	@Test
@@ -55,8 +51,21 @@ public class MonstersRepositoryTest {
 		assertEquals(5, monster.getId());
 		assertEquals("Summoned Skull", monster.getName());
 		assertEquals(6, monster.getLevel());
-		assertEquals(2500, monster.getAttack());
-		assertEquals(1200, monster.getDefense());
+		assertEquals(2500, monster.getAttack().intValue());
+		assertEquals(1200, monster.getDefense().intValue());
+
+	}
+
+	@Test
+	public void find9ReturnsTheWingedDragonOfRaWithNullAttackAndDefense() {
+
+		Monster monster = REPO.find(9);
+
+		assertEquals(9, monster.getId());
+		assertEquals("The Winged Dragon of Ra", monster.getName());
+		assertEquals(10, monster.getLevel());
+		assertNull(monster.getAttack());
+		assertNull(monster.getDefense());
 
 	}
 
@@ -69,8 +78,9 @@ public class MonstersRepositoryTest {
 
 	}
 
+	// NOTE: HsqldbServer must be restarted in order to re-run this test
 	@Test
-	public void addLordOfDragonsReturns9() {
+	public void addLordOfDragonsReturns10() {
 
 		Monster monster = new Monster();
 		monster.setName("Lord of Dragons");
@@ -80,16 +90,16 @@ public class MonstersRepositoryTest {
 
 		int id = REPO.add(monster);
 
-		assertEquals(9, id);
+		assertEquals(10, id);
 
 	}
 
 	@Test
-	public void findAllReturns9Monsters() {
+	public void findAllReturns10Monsters() {
 
 		Monster[] monsters = REPO.findAll();
 
-		assertEquals(6, monsters.length);
+		assertEquals(9, monsters.length);
 
 	}
 

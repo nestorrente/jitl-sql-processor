@@ -14,3 +14,4 @@ INSERT INTO "monsters" VALUES (5, 'Summoned Skull', 6, 2500, 1200);
 INSERT INTO "monsters" VALUES (6, 'Gaia The Fierce Knight', 7, 2300, 2100);
 INSERT INTO "monsters" VALUES (7, 'Kuriboh', 1, 300, 200);
 INSERT INTO "monsters" VALUES (8, 'Obelisk the Tormentor', 10, 4000, 4000);
+INSERT INTO "monsters" VALUES (9, 'The Winged Dragon of Ra', 10, null, null);

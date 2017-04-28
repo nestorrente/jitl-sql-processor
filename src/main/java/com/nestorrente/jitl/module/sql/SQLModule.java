@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -22,7 +23,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
@@ -216,9 +220,7 @@ public class SQLModule extends Module {
 
 		Connection connection = this.connectionSupplier.get();
 
-		try {
-
-			PreparedStatement statement = SqlUtils.prepareStatement(connection, postProcessedTemplate, queryParametersValues, returnGeneratedKeys);
+		try(PreparedStatement statement = SqlUtils.prepareStatement(connection, postProcessedTemplate, queryParametersValues, returnGeneratedKeys)) {
 
 			// TODO add getMoreResults() support? -> create StatementTransformer as superclass of ResultSetTransformer?
 			// Be carefull. Add getMoreResults() support implies pass the PreparedStatement to the transformer,
@@ -246,25 +248,23 @@ public class SQLModule extends Module {
 
 			ResultSet results;
 
-			if(returnGeneratedKeys) {
+			if(isSelectQuery) {
 
-				if(isSelectQuery) {
+				if(returnGeneratedKeys) {
 					// TODO replace with a custom exception
 					throw new RuntimeException("Cannot return generated keys when executing a SELECT query.");
 				}
 
-				results = statement.getGeneratedKeys();
-
-			} else if(isSelectQuery) {
-
 				results = statement.getResultSet();
+
+			} else if(returnGeneratedKeys) {
+
+				results = statement.getGeneratedKeys();
 
 			} else if(ReflectionUtils.returnsVoid(method)) {
 
 				// Nothing to return
 				return null;
-
-				// TODO throw an exception instead of returning null?
 
 			} else {
 
@@ -273,16 +273,22 @@ public class SQLModule extends Module {
 
 			}
 
-			TypeToken<?> expectedResultType = TypeToken.of(method.getGenericReturnType());
+			try {
 
-			ResultSetTransformer<?> transformer = this.getTransformer(expectedResultType);
+				TypeToken<?> expectedResultType = TypeToken.of(method.getGenericReturnType());
 
-			if(transformer == null) {
-				// TODO replace with a custom exception
-				throw new RuntimeException(String.format("There is no registered transformer for type %s", expectedResultType.getType().getTypeName()));
+				ResultSetTransformer<?> transformer = this.getTransformer(expectedResultType);
+
+				if(transformer == null) {
+					// TODO replace with a custom exception
+					throw new RuntimeException(String.format("There is no registered transformer for type %s", expectedResultType.getType().getTypeName()));
+				}
+
+				return transformer.transform(results);
+
+			} finally {
+				results.close();
 			}
-
-			return transformer.transform(results);
 
 		} finally {
 
@@ -299,6 +305,22 @@ public class SQLModule extends Module {
 		return new SQLModuleBuilder(() -> connection, c -> {});
 	}
 
+	public static SQLModuleBuilder builder(DataSource dataSource) {
+		return new SQLModuleBuilder(() -> {
+			try {
+				return dataSource.getConnection();
+			} catch(SQLException ex) {
+				return ExceptionUtils.rethrow(ex);
+			}
+		}, c -> {
+			try {
+				c.close();
+			} catch(SQLException ex) {
+				ExceptionUtils.rethrow(ex);
+			}
+		});
+	}
+
 	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier) {
 		return new SQLModuleBuilder(connectionSupplier, c -> {});
 	}
@@ -309,6 +331,10 @@ public class SQLModule extends Module {
 
 	public static SQLModule defaultInstance(Connection connection) {
 		return builder(connection).build();
+	}
+
+	public static SQLModule defaultInstance(DataSource dataSource) {
+		return builder(dataSource).build();
 	}
 
 	public static SQLModule defaultInstance(Supplier<Connection> connectionSupplier) {

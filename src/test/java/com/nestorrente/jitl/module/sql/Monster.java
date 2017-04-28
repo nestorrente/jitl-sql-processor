@@ -5,8 +5,8 @@ public class Monster {
 	private int id;
 	private String name;
 	private int level;
-	private int attack;
-	private int defense;
+	private Integer attack;
+	private Integer defense;
 
 	public int getId() {
 		return this.id;
@@ -20,15 +20,15 @@ public class Monster {
 		return this.level;
 	}
 
-	public int getAttack() {
+	public Integer getAttack() {
 		return this.attack;
 	}
 
-	public int getDefense() {
+	public Integer getDefense() {
 		return this.defense;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -36,7 +36,7 @@ public class Monster {
 		this.name = name;
 	}
 
-	public void setLevel(int level) {
+	public void setLevel(Integer level) {
 		this.level = level;
 	}
 

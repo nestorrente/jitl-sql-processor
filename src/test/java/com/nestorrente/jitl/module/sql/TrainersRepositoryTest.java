@@ -8,13 +8,10 @@ import java.sql.SQLException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import com.nestorrente.jitl.Jitl;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TrainersRepositoryTest {
 
 	private static Connection CONNECTION;
@@ -48,7 +45,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test
-	public void test1addReturns1() {
+	public void addReturns4() {
 
 		int insertedId = REPO.add("Maximillion Pegasus");
 
@@ -57,7 +54,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test
-	public void test2getName2ReturnsSetoKaiba() {
+	public void getName2ReturnsSetoKaiba() {
 
 		String name = REPO.getName(2);
 
@@ -66,7 +63,7 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test
-	public void test3updateReturns1() {
+	public void updateReturns1() {
 
 		int affectedRows = REPO.update(1, "Yami Yugi");
 
@@ -75,8 +72,8 @@ public class TrainersRepositoryTest {
 	}
 
 	@Test(expected = RuntimeException.class)
-	public void test4deleteWithAffectedRowsReturningVoidThrowsException() {
-		REPO.delete(4);
+	public void deleteWithAffectedRowsReturningVoidThrowsException() {
+		REPO.delete(3);
 	}
 
 }
