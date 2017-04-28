@@ -2,7 +2,7 @@
 
 **~ This README will be available soon ~**
 
-Meanwhile, you can learn more about JITL in **[jitl-core GitHub page](https://github.com/nestorrente/jitl-core)**. See you!
+Meanwhile, you can learn more about JITL in the **[jitl-core GitHub page](https://github.com/nestorrente/jitl-core)**. See you!
 
 ## Maven
 
