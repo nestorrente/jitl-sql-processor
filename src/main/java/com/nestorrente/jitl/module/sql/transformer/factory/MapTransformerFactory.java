@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.reflect.TypeToken;
+import com.nestorrente.jitl.exception.TransformationException;
 import com.nestorrente.jitl.module.sql.SQLModule;
 import com.nestorrente.jitl.module.sql.transformer.CellTransformer;
 import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
@@ -37,8 +38,8 @@ public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSe
 
 		TypeToken<?> keyType = ReflectionUtils.getSuperclassTypeArgument(castedType, Map.class, 0);
 
-		// Accept only maps whose keys are strings
-		if(!String.class.equals(keyType.getRawType())) {
+		// Accept only maps whose keys can be strings
+		if(!keyType.getRawType().isAssignableFrom(String.class)) {
 			return null;
 		}
 
@@ -49,8 +50,7 @@ public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSe
 		try {
 			valueTransformer = (CellTransformer<?>) module.getTransformer(valueType);
 		} catch(ClassCastException ex) {
-			// TODO replace with a custom exception
-			throw new RuntimeException("Map values must be cells of the result set, not a row nor an entire result set", ex);
+			throw new TransformationException("Map values must be cells of the result set, not a row nor an entire result set", ex);
 		}
 
 		return new MapTransformer<>(module.getColumnNameConverter(), this.mapImplementationSupplier, valueTransformer);

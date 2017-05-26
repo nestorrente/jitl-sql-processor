@@ -1,8 +1,9 @@
-package com.nestorrente.jitl.module.sql;
+package com.nestorrente.jitl.module.sql.yugioh;
 
 import com.nestorrente.jitl.annotation.Param;
 import com.nestorrente.jitl.annotation.Params;
 import com.nestorrente.jitl.annotation.UseModule;
+import com.nestorrente.jitl.module.sql.SQLModule;
 import com.nestorrente.jitl.module.sql.annotation.AffectedRows;
 import com.nestorrente.jitl.module.sql.annotation.GeneratedKeys;
 

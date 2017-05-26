@@ -62,11 +62,11 @@ public class SQLModuleBuilder implements Builder<SQLModule> {
 		return this;
 	}
 
-	public <T> SQLModuleBuilder addTransformerFactory(Class<T> type, ResultSetTransformer<? extends T> transformer) {
+	public <T> SQLModuleBuilder addTransformer(Class<T> type, ResultSetTransformer<? extends T> transformer) {
 		return this.addTransformerFactory(new ClassTransformerFactory<>(type, transformer));
 	}
 
-	public <T> SQLModuleBuilder addHierarchyTransformerFactory(Class<T> lowerBound, Class<? super T> upperBound, ResultSetTransformer<? extends T> transformer) {
+	public <T> SQLModuleBuilder addHierarchyTransformer(Class<T> lowerBound, Class<? super T> upperBound, ResultSetTransformer<? extends T> transformer) {
 		return this.addTransformerFactory(new HierarchyTransformerFactory<>(lowerBound, upperBound, transformer));
 	}
 

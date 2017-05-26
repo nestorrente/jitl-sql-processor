@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.reflect.TypeToken;
+import com.nestorrente.jitl.exception.TransformationException;
 import com.nestorrente.jitl.module.sql.SQLModule;
 import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
 import com.nestorrente.jitl.module.sql.transformer.RowTransformer;
@@ -27,8 +28,7 @@ public class ArrayTransformerFactory implements ResultSetTransformerFactory {
 		try {
 			componentTransformer = (RowTransformer<?>) module.getTransformer(componentType);
 		} catch(ClassCastException ex) {
-			// TODO replace with a custom exception
-			throw new RuntimeException("Array elements must be rows or cells of the result set, not an entire result set", ex);
+			throw new TransformationException("Array elements must be rows or cells of the result set, not an entire result set", ex);
 		}
 
 		return new ArrayTransformer(componentType.getRawType(), componentTransformer);

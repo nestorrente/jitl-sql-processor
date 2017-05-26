@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 import com.google.common.reflect.TypeToken;
+import com.nestorrente.jitl.exception.TransformationException;
 import com.nestorrente.jitl.module.sql.SQLModule;
 import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
 import com.nestorrente.jitl.module.sql.transformer.RowTransformer;
@@ -16,7 +17,7 @@ public class CollectionTransformerFactory<C extends Collection<?>> implements Re
 	private final Supplier<? extends C> collectionImplementationSupplier;
 
 	// TODO allow many implementations in the same factory?
-	public <T> CollectionTransformerFactory(Class<C> collectionImplementationClass, Supplier<? extends C> collectionImplementationSupplier) {
+	public CollectionTransformerFactory(Class<C> collectionImplementationClass, Supplier<? extends C> collectionImplementationSupplier) {
 		this.collectionImplementationClass = collectionImplementationClass;
 		this.collectionImplementationSupplier = collectionImplementationSupplier;
 	}
@@ -39,8 +40,7 @@ public class CollectionTransformerFactory<C extends Collection<?>> implements Re
 		try {
 			elementTransformer = (RowTransformer<?>) module.getTransformer(elementType);
 		} catch(ClassCastException ex) {
-			// TODO replace with a custom exception
-			throw new RuntimeException("Collection elements must be rows or cells of the result set, not an entire result set", ex);
+			throw new TransformationException("Collection elements must be rows or cells of the result set, not an entire result set", ex);
 		}
 
 		return new CollectionTransformer<>(this.collectionImplementationSupplier, elementTransformer);

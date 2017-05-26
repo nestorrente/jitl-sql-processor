@@ -2,12 +2,14 @@ package com.nestorrente.jitl.module.sql;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,11 +29,13 @@ import java.util.function.Supplier;
 import javax.sql.DataSource;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jooq.lambda.Unchecked;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.nestorrente.jitl.Jitl;
+import com.nestorrente.jitl.exception.TransformationException;
+import com.nestorrente.jitl.exception.WrongAnnotationUseException;
 import com.nestorrente.jitl.module.Module;
 import com.nestorrente.jitl.module.sql.accessor.index.IndexAccessor;
 import com.nestorrente.jitl.module.sql.accessor.index.factory.ArrayIndexAccessorFactory;
@@ -42,17 +47,22 @@ import com.nestorrente.jitl.module.sql.accessor.property.factory.PropertyAccesso
 import com.nestorrente.jitl.module.sql.accessor.property.factory.ReflectivePropertyAccessorFactory;
 import com.nestorrente.jitl.module.sql.annotation.AffectedRows;
 import com.nestorrente.jitl.module.sql.annotation.GeneratedKeys;
+import com.nestorrente.jitl.module.sql.exception.AccessException;
 import com.nestorrente.jitl.module.sql.transformer.CellTransformer;
+import com.nestorrente.jitl.module.sql.transformer.ObjectTransformer;
 import com.nestorrente.jitl.module.sql.transformer.ResultSetTransformer;
 import com.nestorrente.jitl.module.sql.transformer.factory.ArrayTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.BasicTypesTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.ClassTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.CollectionTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.DateTypeTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.HierarchyTransformerFactory;
+import com.nestorrente.jitl.module.sql.transformer.factory.IterableTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.MapTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.ReflectiveTransformerFactory;
 import com.nestorrente.jitl.module.sql.transformer.factory.ResultSetTransformerFactory;
+import com.nestorrente.jitl.module.sql.util.SqlUtils;
 import com.nestorrente.jitl.util.ReflectionUtils;
-import com.nestorrente.jitl.util.SqlUtils;
 
 public class SQLModule extends Module {
 
@@ -65,7 +75,7 @@ public class SQLModule extends Module {
 
 	SQLModule(Supplier<Connection> connectionSupplier, Consumer<Connection> connectionCloser, Collection<String> fileExtensions, Collection<ResultSetTransformerFactory> transformerFactories, Collection<PropertyAccessorFactory> propertyAccessorFactories, Collection<IndexAccessorFactory> indexAccessorFactories, Function<String, String> columnNameConverter) {
 
-		// TODO change this
+		// FIXME change this
 		super(ImmutableList.<String>builder().addAll(fileExtensions).add("sql").build());
 
 		this.connectionSupplier = connectionSupplier;
@@ -73,18 +83,37 @@ public class SQLModule extends Module {
 
 		// TODO reorganize transformers and accessors -> most used first (the reflection one must always be the last)
 
+		// TODO añadir un transformer para que los char[] se traten como los String? Ahora mismo los char[] se traen una columna de tipo CHAR.
 		this.transformerFactories = new ArrayList<>(transformerFactories);
+
 		this.transformerFactories.add(new CollectionTransformerFactory<>(ArrayList.class, ArrayList::new));
 		this.transformerFactories.add(new CollectionTransformerFactory<>(LinkedList.class, LinkedList::new));
 		this.transformerFactories.add(new CollectionTransformerFactory<>(HashSet.class, HashSet::new));
 		this.transformerFactories.add(new CollectionTransformerFactory<>(LinkedHashSet.class, LinkedHashSet::new));
 		this.transformerFactories.add(new CollectionTransformerFactory<>(TreeSet.class, TreeSet::new));
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		BiConsumer<ArrayList, Object> iterableAddMethod = ArrayList::add;
+		this.transformerFactories.add(new IterableTransformerFactory<>(ArrayList.class, ArrayList::new, iterableAddMethod));
+
 		this.transformerFactories.add(new MapTransformerFactory<>(HashMap.class, HashMap::new));
 		this.transformerFactories.add(new MapTransformerFactory<>(LinkedHashMap.class, LinkedHashMap::new));
 		this.transformerFactories.add(new MapTransformerFactory<>(TreeMap.class, TreeMap::new));
+
 		this.transformerFactories.add(new ArrayTransformerFactory()); // arrays
+
 		this.transformerFactories.add(new BasicTypesTransformerFactory()); // primitive types, its wrappers and String class
-		this.transformerFactories.add(new ClassTransformerFactory<>(Object.class, (CellTransformer<?>) (rs, i) -> SqlUtils.getObject(rs, i)));
+
+		this.transformerFactories.add(new ClassTransformerFactory<>(BigInteger.class, (CellTransformer<BigInteger>) SqlUtils::getBigInteger));
+		this.transformerFactories.add(new HierarchyTransformerFactory<>(BigDecimal.class, Number.class, (CellTransformer<BigDecimal>) ResultSet::getBigDecimal));
+
+		// this.transformerFactories.add(new ClassTransformerFactory<>(Date.class, new DateTransformer()));
+		this.transformerFactories.add(new DateTypeTransformerFactory<>(Date.class, Date::new));
+		this.transformerFactories.add(new DateTypeTransformerFactory<>(java.sql.Date.class, java.sql.Date::new));
+		this.transformerFactories.add(new DateTypeTransformerFactory<>(java.sql.Timestamp.class, java.sql.Timestamp::new));
+		this.transformerFactories.add(new DateTypeTransformerFactory<>(java.sql.Time.class, java.sql.Time::new));
+
+		this.transformerFactories.add(new ClassTransformerFactory<>(Object.class, new ObjectTransformer()));
 		this.transformerFactories.add(new ReflectiveTransformerFactory()); // fallback for every class
 
 		this.columnNameConverter = columnNameConverter;
@@ -117,8 +146,7 @@ public class SQLModule extends Module {
 
 		}
 
-		// TODO replace with a custom exception
-		throw new RuntimeException("No transformer found for type: " + type);
+		throw new TransformationException("No transformer found for type: " + type);
 
 	}
 
@@ -173,8 +201,7 @@ public class SQLModule extends Module {
 
 		}
 
-		// TODO replace with a custom exception
-		throw new RuntimeException("No property accessor found for type: " + type);
+		throw new AccessException("No property accessor found for type: " + type);
 
 	}
 
@@ -191,11 +218,11 @@ public class SQLModule extends Module {
 
 		}
 
-		// TODO replace with a custom exception
-		throw new RuntimeException("No property accessor found for type: " + type);
+		throw new AccessException("No property accessor found for type: " + type);
 
 	}
 
+	// TODO add a @ColumnName annotation for ReflectiveTransformer and remove the column name converter?
 	public Function<String, String> getColumnNameConverter() {
 		return this.columnNameConverter;
 	}
@@ -203,7 +230,7 @@ public class SQLModule extends Module {
 	@Override
 	public Object postProcess(Jitl jitl, Method method, String renderedTemplate, Map<String, Object> parameters) throws Exception {
 
-		// TODO clean and split this method
+		// TODO clean and split this method to allow unit-testing
 
 		ParsedQueryData parseData = QueryParser.parse(this, renderedTemplate, parameters);
 
@@ -214,8 +241,7 @@ public class SQLModule extends Module {
 		boolean returnGeneratedKeys = method.isAnnotationPresent(GeneratedKeys.class);
 
 		if(returnAffectedRows && returnGeneratedKeys) {
-			// TODO replace with a custom exception
-			throw new RuntimeException("One method cannot return affected rows and generated keys at the same time");
+			throw new WrongAnnotationUseException("One method cannot return affected rows and generated keys at the same time");
 		}
 
 		Connection connection = this.connectionSupplier.get();
@@ -233,13 +259,11 @@ public class SQLModule extends Module {
 			if(returnAffectedRows) {
 
 				if(isSelectQuery) {
-					// TODO replace with a custom exception
-					throw new RuntimeException("Cannot return affected rows when executing a SELECT query.");
+					throw new WrongAnnotationUseException("Cannot return affected rows when executing a SELECT query.");
 				}
 
 				if(!ReflectionUtils.returnsInt(method)) {
-					// TODO replace with a custom exception
-					throw new RuntimeException(String.format("Methods annotated with %s must return int or Integer types.", AffectedRows.class.getName()));
+					throw new WrongAnnotationUseException(String.format("Methods annotated with %s must return int or Integer types.", AffectedRows.class.getName()));
 				}
 
 				return statement.getUpdateCount();
@@ -251,8 +275,7 @@ public class SQLModule extends Module {
 			if(isSelectQuery) {
 
 				if(returnGeneratedKeys) {
-					// TODO replace with a custom exception
-					throw new RuntimeException("Cannot return generated keys when executing a SELECT query.");
+					throw new WrongAnnotationUseException("Cannot return generated keys when executing a SELECT query.");
 				}
 
 				results = statement.getResultSet();
@@ -268,8 +291,7 @@ public class SQLModule extends Module {
 
 			} else {
 
-				// TODO replace with a custom exception
-				throw new RuntimeException(String.format("Expected %s but no results obtained", method.getGenericReturnType()));
+				throw new TransformationException(String.format("Expected %s but no results obtained", method.getGenericReturnType()));
 
 			}
 
@@ -280,8 +302,7 @@ public class SQLModule extends Module {
 				ResultSetTransformer<?> transformer = this.getTransformer(expectedResultType);
 
 				if(transformer == null) {
-					// TODO replace with a custom exception
-					throw new RuntimeException(String.format("There is no registered transformer for type %s", expectedResultType.getType().getTypeName()));
+					throw new TransformationException(String.format("There is no registered transformer for type %s", expectedResultType.getType().getTypeName()));
 				}
 
 				return transformer.transform(results);
@@ -306,19 +327,7 @@ public class SQLModule extends Module {
 	}
 
 	public static SQLModuleBuilder builder(DataSource dataSource) {
-		return new SQLModuleBuilder(() -> {
-			try {
-				return dataSource.getConnection();
-			} catch(SQLException ex) {
-				return ExceptionUtils.rethrow(ex);
-			}
-		}, c -> {
-			try {
-				c.close();
-			} catch(SQLException ex) {
-				ExceptionUtils.rethrow(ex);
-			}
-		});
+		return new SQLModuleBuilder(Unchecked.supplier(dataSource::getConnection), Unchecked.consumer(Connection::close));
 	}
 
 	public static SQLModuleBuilder builder(Supplier<Connection> connectionSupplier) {

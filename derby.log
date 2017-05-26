@@ -1,0 +1,64 @@
+----------------------------------------------------------------
+Tue May 23 22:30:04 CEST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-015c-3700-970d-000006411d50 
+on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/yugioh with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+Loaded from file:/home/nestorrente/.m2/repository/org/apache/derby/derby/10.13.1.1/derby-10.13.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_92-b14
+user.dir=/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module
+os.name=Linux
+os.arch=amd64
+os.version=4.4.0-78-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue May 23 22:30:06 CEST 2017:
+Shutting down instance a816c00e-015c-3700-970d-000006411d50 on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/yugioh with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+----------------------------------------------------------------
+Tue May 23 22:30:06 CEST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance df1940da-015c-3700-970d-000006411d50 
+on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/types with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+Loaded from file:/home/nestorrente/.m2/repository/org/apache/derby/derby/10.13.1.1/derby-10.13.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_92-b14
+user.dir=/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module
+os.name=Linux
+os.arch=amd64
+os.version=4.4.0-78-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue May 23 22:30:07 CEST 2017:
+Shutting down instance df1940da-015c-3700-970d-000006411d50 on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/types with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+----------------------------------------------------------------
+Tue May 23 22:30:15 CEST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance cc4c01a0-015c-3700-970d-000006411d50 
+on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/yugioh with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+Loaded from file:/home/nestorrente/.m2/repository/org/apache/derby/derby/10.13.1.1/derby-10.13.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_92-b14
+user.dir=/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module
+os.name=Linux
+os.arch=amd64
+os.version=4.4.0-78-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue May 23 22:30:15 CEST 2017:
+Shutting down instance cc4c01a0-015c-3700-970d-000006411d50 on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/yugioh with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+----------------------------------------------------------------
+Tue May 23 22:30:16 CEST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance 3d644262-015c-3700-970d-000006411d50 
+on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/yugioh with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+Loaded from file:/home/nestorrente/.m2/repository/org/apache/derby/derby/10.13.1.1/derby-10.13.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_92-b14
+user.dir=/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module
+os.name=Linux
+os.arch=amd64
+os.version=4.4.0-78-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue May 23 22:30:20 CEST 2017:
+Shutting down instance 3d644262-015c-3700-970d-000006411d50 on database directory memory:/home/nestorrente/Programación/Repositories/GitHub/jitl-sql-module/yugioh with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 

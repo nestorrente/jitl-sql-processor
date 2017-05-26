@@ -1,4 +1,4 @@
-package com.nestorrente.jitl.module.sql;
+package com.nestorrente.jitl.module.sql.yugioh;
 
 public class Monster {
 
@@ -46,6 +46,11 @@ public class Monster {
 
 	public void setDefense(int defense) {
 		this.defense = defense;
+	}
+
+	@Override
+	public String toString() {
+		return "Monster [id=" + this.id + ", name=" + this.name + ", level=" + this.level + ", attack=" + this.attack + ", defense=" + this.defense + "]";
 	}
 
 }

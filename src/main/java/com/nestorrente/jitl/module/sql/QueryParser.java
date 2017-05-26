@@ -10,8 +10,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+import com.nestorrente.jitl.exception.RuntimeIOException;
 import com.nestorrente.jitl.module.sql.accessor.index.IndexAccessor;
 import com.nestorrente.jitl.module.sql.accessor.property.PropertyAccessor;
+import com.nestorrente.jitl.module.sql.exception.SyntaxErrorException;
 import com.nestorrente.jitl.util.ReflectionUtils;
 import com.nestorrente.jitl.util.StringUtils;
 
@@ -47,18 +49,22 @@ class QueryParser implements Closeable {
 		try {
 			return this.reader.read();
 		} catch(IOException ex) {
-			// TODO replace with a custom exception (RuntimeIOException?)
-			throw new RuntimeException(ex);
+			throw new RuntimeIOException(ex);
 		}
 	}
 
 	private void unreadChar(int ch) {
+
+		if(ch == -1) {
+			return;
+		}
+
 		try {
 			this.reader.unread(ch);
 		} catch(IOException ex) {
-			// TODO replace with a custom exception (RuntimeIOException?)
-			throw new RuntimeException(ex);
+			throw new RuntimeIOException(ex);
 		}
+
 	}
 
 	private void readChunk() {
@@ -91,9 +97,9 @@ class QueryParser implements Closeable {
 
 		// Ensure this is a valid escape sequence
 		if(ch != SCAPE_CHAR && ch != PARAMETER_START_CHAR && ch != KEY_ACCESSOR_START_CHAR && ch != INDEX_ACCESSOR_START_CHAR && ch != INDEX_ACCESSOR_END_CHAR) {
-			// TODO replace with a custom exception (SyntaxErrorException?)
-			throw new RuntimeException(String.format(
-				"Invalid escape sequence. Valid ones are: %c%c, %c%c, %c%c, %c%c and %c%c",
+			throw new SyntaxErrorException(String.format(
+				"Invalid escape sequence: %c%c. Valid ones are: %c%c, %c%c, %c%c, %c%c and %c%c",
+				SCAPE_CHAR, (char) ch,
 				SCAPE_CHAR, SCAPE_CHAR,
 				SCAPE_CHAR, PARAMETER_START_CHAR,
 				SCAPE_CHAR, KEY_ACCESSOR_START_CHAR,
@@ -123,8 +129,7 @@ class QueryParser implements Closeable {
 				PropertyAccessor<Object> accessor = (PropertyAccessor<Object>) this.module.getPropertyAccessor(value.getClass());
 
 				if(accessor == null) {
-					// TODO replace with a better exception
-					throw new RuntimeException(String.format("Cannot use property access in type %s", value.getClass().getName()));
+					throw new SyntaxErrorException(String.format("Cannot use property access in type %s", value.getClass().getName()));
 				}
 
 				value = accessor.access(value, key);
@@ -139,8 +144,7 @@ class QueryParser implements Closeable {
 				IndexAccessor<Object> accessor = (IndexAccessor<Object>) this.module.getIndexAccessor(value.getClass());
 
 				if(accessor == null) {
-					// TODO replace with a better exception
-					throw new RuntimeException(String.format("Cannot use index access in type %s", value.getClass().getName()));
+					throw new SyntaxErrorException(String.format("Cannot use index access in type %s", value.getClass().getName()));
 				}
 
 				value = accessor.access(value, index);
@@ -163,15 +167,19 @@ class QueryParser implements Closeable {
 
 		if(value instanceof Collection) {
 
-			this.outputParameters.addAll((Collection<?>) value);
+			Collection<?> collection = (Collection<?>) value;
 
-			this.builder.append(StringUtils.joinRepeating("?", ", ", ((Collection<?>) value).size()));
+			this.outputParameters.addAll(collection);
+
+			this.builder.append(StringUtils.joinRepeating("?", ", ", collection.size()));
 
 		} else if(value instanceof Map) {
 
-			this.outputParameters.addAll(((Map<?, ?>) value).values());
+			Map<?, ?> map = (Map<?, ?>) value;
 
-			this.builder.append(StringUtils.joinRepeating("?", ", ", ((Map<?, ?>) value).size()));
+			this.outputParameters.addAll(map.values());
+
+			this.builder.append(StringUtils.joinRepeating("?", ", ", map.size()));
 
 		} else if(ReflectionUtils.isArray(value)) {
 
@@ -265,8 +273,7 @@ class QueryParser implements Closeable {
 		try {
 			this.reader.close();
 		} catch(IOException ex) {
-			// TODO replace with a custom exception (RuntimeIOException?)
-			throw new RuntimeException(ex);
+			throw new RuntimeIOException(ex);
 		}
 	}
 

@@ -5,7 +5,7 @@
 	<groupId>com.nestorrente</groupId>
 	<artifactId>jitl-sql-module</artifactId>
 	<version>4.0.0</version>
-	<name>Java Interface Template Library</name>
+	<name>JITL SQL Module</name>
 	<description>A module that adds SQL-queries-execution to Jitl.</description>
 
 	<properties>
@@ -13,7 +13,6 @@
 		<objenesis.version>2.5.1</objenesis.version>
 		<commons.lang.version>3.5</commons.lang.version>
 		<guava.version>21.0</guava.version>
-		<hsqldb.version>2.3.4</hsqldb.version>
 		<junit.version>4.12</junit.version>
 		<hamcrest.junit.version>2.0.0.0</hamcrest.junit.version>
 	</properties>
@@ -52,9 +51,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>${hsqldb.version}</version>
+			<groupId>org.jooq</groupId>
+			<artifactId>jool</artifactId>
+			<version>0.9.12</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.13.1.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -73,9 +78,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.jooq</groupId>
-			<artifactId>jool</artifactId>
-			<version>0.9.12</version>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.19</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -120,21 +125,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- <plugin> -->
-			<!-- <groupId>org.codehaus.mojo</groupId> -->
-			<!-- <artifactId>exec-maven-plugin</artifactId> -->
-			<!-- <version>1.2.1</version> -->
-			<!-- <configuration> -->
-			<!-- <mainClass>org.hsqldb.Server</mainClass> -->
-			<!-- <arguments> -->
-			<!-- <argument>-database.0</argument> -->
-			<!-- <argument>res:/com/nestorrente/jitl/module/sql/database/yugioh</argument> -->
-			<!-- <argument>-dbname.0</argument> -->
-			<!-- <argument>yugioh</argument> -->
-			<!-- </arguments> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
 
 		</plugins>
 

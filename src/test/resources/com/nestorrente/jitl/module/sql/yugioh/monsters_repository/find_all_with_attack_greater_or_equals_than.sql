@@ -1,0 +1,1 @@
+SELECT * FROM "monsters" WHERE "attack" >= :attack
