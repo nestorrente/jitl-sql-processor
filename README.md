@@ -6,7 +6,9 @@ _This library is currently on development. Please, don't use it in production en
 
 _Stable version 4.0.0 comming soon._
 
-**~ This README will be available soon ~**
+## Under development 🔨
+
+**This README will be available soon.**
 
 Meanwhile, you can learn more about JITL in the **[jitl-core GitHub page](https://github.com/nestorrente/jitl-core)**. See you!
 
