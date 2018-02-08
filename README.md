@@ -1,4 +1,10 @@
-# Java Interface Template Library - SQL Module
+# Java Interface Template Library - SQL Processor
+
+## Disclaimer
+
+_This library is currently on development. Please, don't use it in production environments._
+
+_Stable version 4.0.0 comming soon._
 
 **~ This README will be available soon ~**
 
@@ -17,7 +23,7 @@ Meanwhile, you can learn more about JITL in the **[jitl-core GitHub page](https:
 <dependencies>
 	<dependency>
 		<groupId>com.nestorrente</groupId>
-		<artifactId>jitl-sql-module</artifactId>
+		<artifactId>jitl-sql-processor</artifactId>
 		<version>4.0.0</version>
 	</dependency>
 </dependencies>
