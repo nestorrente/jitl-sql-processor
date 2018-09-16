@@ -8,7 +8,7 @@ public class StringUtils {
 
 		StringJoiner joiner = new StringJoiner(delimiter);
 
-		while(times-- > 0) {
+		for(int i = 0; i < times; ++i) {
 			joiner.add(element);
 		}
 
