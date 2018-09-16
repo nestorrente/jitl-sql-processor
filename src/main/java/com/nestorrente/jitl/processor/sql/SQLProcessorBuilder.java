@@ -12,7 +12,6 @@ import com.nestorrente.jitl.processor.sql.transformer.ResultSetTransformer;
 import com.nestorrente.jitl.processor.sql.transformer.factory.ClassTransformerFactory;
 import com.nestorrente.jitl.processor.sql.transformer.factory.HierarchyTransformerFactory;
 import com.nestorrente.jitl.processor.sql.transformer.factory.ResultSetTransformerFactory;
-import com.nestorrente.jitl.util.ArrayUtils;
 import org.apache.commons.lang3.builder.Builder;
 
 import java.sql.Connection;
@@ -50,7 +49,7 @@ public class SQLProcessorBuilder implements Builder<SQLProcessor> {
 	}
 
 	public SQLProcessorBuilder addFileExtensions(String... extensions) {
-		ArrayUtils.addAll(this.fileExtensions, extensions);
+		Collections.addAll(this.fileExtensions, extensions);
 		return this;
 	}
 

@@ -48,7 +48,7 @@ public class ReflectiveTransformerFactory implements ResultSetTransformerFactory
 
 			for(int i = 1; i <= columnCount; ++i) {
 
-				String fieldName = this.module.getColumnNameConverter().apply(metadata.getColumnName(i));
+				String fieldName = this.module.getColumnNameConverter().apply(metadata.getColumnLabel(i));
 
 				// TODO is it worth it to make a cache? Maybe not, because this will be called with many different classes
 				Field field = ReflectionUtils.getField(this.type, fieldName);

@@ -10,9 +10,6 @@ public interface RowTransformer<T> extends ResultSetTransformer<T> {
 		return resultSet.next() ? this.transformRow(resultSet) : null;
 	}
 
-	/**
-	 * El ResultSet ya está en la fila adecuada.
-	 */
 	T transformRow(ResultSet resultSet) throws Exception;
 
 }

@@ -10,9 +10,6 @@ public interface CellTransformer<T> extends RowTransformer<T> {
 		return this.transformCell(resultSet, 1);
 	}
 
-	/**
-	 * El ResultSet ya está en la fila adecuada.
-	 */
 	T transformCell(ResultSet resultSet, int columnIndex) throws Exception;
 
 }

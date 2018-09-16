@@ -82,7 +82,7 @@ public class MapTransformerFactory<M extends Map<String, ?>> implements ResultSe
 
 			for(int i = 1; i <= columnCount; ++i) {
 
-				String key = this.columnNameConverter.apply(metadata.getColumnName(i));
+				String key = this.columnNameConverter.apply(metadata.getColumnLabel(i));
 
 				Object value = this.valueTransformer.transformCell(resultSet, i);
 

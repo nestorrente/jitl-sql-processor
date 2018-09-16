@@ -15,9 +15,14 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.TimeZone;
 
 public class JdbcUtils {
+
+	private static Calendar LOCAL_TIMEZONE_CALENDAR = Calendar.getInstance();
+	private static Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
 	public static void setObject(PreparedStatement statement, int index, Object value) throws SQLException {
 
@@ -42,13 +47,16 @@ public class JdbcUtils {
 		} else if(value instanceof String) {
 			statement.setString(index, (String) value);
 		} else if(value instanceof Date) {
-			statement.setDate(index, (Date) value);
+			statement.setDate(index, (Date) value, LOCAL_TIMEZONE_CALENDAR);
 		} else if(value instanceof Time) {
-			statement.setTime(index, (Time) value);
+			statement.setTime(index, (Time) value, LOCAL_TIMEZONE_CALENDAR);
 		} else if(value instanceof Timestamp) {
-			statement.setTimestamp(index, (Timestamp) value);
+			statement.setTimestamp(index, (Timestamp) value, UTC_CALENDAR);
 		} else if(value instanceof java.util.Date) {
-			statement.setTimestamp(index, new Timestamp(((java.util.Date) value).getTime()));
+			statement.setTimestamp(index, new Timestamp(((java.util.Date) value).getTime()), UTC_CALENDAR);
+		} else if(value instanceof Calendar) {
+			Calendar calendar = (Calendar) value;
+			statement.setTimestamp(index, new Timestamp(calendar.getTimeInMillis()), calendar);
 		} else if(value instanceof BigDecimal) {
 			statement.setBigDecimal(index, (BigDecimal) value);
 			// There isn't a clear way to set a BigInteger, so we let it to setObject
@@ -236,14 +244,14 @@ public class JdbcUtils {
 
 	}
 
-	public static PreparedStatement prepareStatement(Connection connection, String sql, Collection<?> parameters, boolean returnGeneratedKeys) throws Exception {
+	public static PreparedStatement prepareStatement(Connection connection, String sql, Collection<Object> parameters, boolean returnGeneratedKeys) throws Exception {
 
 		PreparedStatement statement = connection.prepareStatement(sql, returnGeneratedKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 
 		int index = 1;
 
-		for(Object value : parameters) {
-			JdbcUtils.setObject(statement, index++, value);
+		for(Object parameter : parameters) {
+			JdbcUtils.setObject(statement, index++, parameter);
 		}
 
 		return statement;

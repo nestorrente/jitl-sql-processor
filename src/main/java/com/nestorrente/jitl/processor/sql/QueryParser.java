@@ -4,8 +4,8 @@ import com.nestorrente.jitl.exception.RuntimeIOException;
 import com.nestorrente.jitl.processor.sql.accessor.index.IndexAccessor;
 import com.nestorrente.jitl.processor.sql.accessor.property.PropertyAccessor;
 import com.nestorrente.jitl.processor.sql.exception.SyntaxErrorException;
+import com.nestorrente.jitl.processor.sql.util.StringUtils;
 import com.nestorrente.jitl.util.ReflectionUtils;
-import com.nestorrente.jitl.util.StringUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -160,15 +160,13 @@ class QueryParser implements Closeable {
 
 	}
 
-	// FIXME this is mocked
 	// TODO add some kind of "type resolver"s? They will receive an object then they will return a Collection of objects that must be interpreted as multiple question marks ("?")
-	// TODO this resolvers must be called recursively or not? Think about that.
+	// TODO this resolvers must be called recursively or not? Think about it.
 	private void addParameterToQuery(Object value) {
 
 		if(value instanceof Collection) {
 
 			Collection<?> collection = (Collection<?>) value;
-
 			this.outputParameters.addAll(collection);
 
 			this.builder.append(StringUtils.joinRepeating("?", ", ", collection.size()));
@@ -176,7 +174,6 @@ class QueryParser implements Closeable {
 		} else if(value instanceof Map) {
 
 			Map<?, ?> map = (Map<?, ?>) value;
-
 			this.outputParameters.addAll(map.values());
 
 			this.builder.append(StringUtils.joinRepeating("?", ", ", map.size()));

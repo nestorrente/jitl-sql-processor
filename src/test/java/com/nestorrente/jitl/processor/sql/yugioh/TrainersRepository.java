@@ -1,8 +1,8 @@
 package com.nestorrente.jitl.processor.sql.yugioh;
 
 import com.nestorrente.jitl.annotation.UseProcessor;
-import com.nestorrente.jitl.annotation.param.Param;
-import com.nestorrente.jitl.annotation.param.Params;
+import com.nestorrente.jitl.annotation.param.ParamName;
+import com.nestorrente.jitl.annotation.param.ParamNames;
 import com.nestorrente.jitl.processor.sql.SQLProcessor;
 import com.nestorrente.jitl.processor.sql.annotation.AffectedRows;
 import com.nestorrente.jitl.processor.sql.annotation.GeneratedKeys;
@@ -11,15 +11,15 @@ import com.nestorrente.jitl.processor.sql.annotation.GeneratedKeys;
 public interface TrainersRepository {
 
 	@GeneratedKeys
-	int add(@Param("name") String name);
+	int add(@ParamName("name") String name);
 
-	String getName(@Param("id") int id);
+	String getName(@ParamName("id") int id);
 
 	@AffectedRows
-	@Params({ "id", "name" })
+	@ParamNames({ "id", "name" })
 	int update(int id, String name);
 
 	@AffectedRows
-	void delete(@Param("id") int id);
+	void delete(@ParamName("id") int id);
 
 }
