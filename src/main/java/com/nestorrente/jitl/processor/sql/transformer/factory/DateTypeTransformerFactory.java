@@ -2,9 +2,12 @@ package com.nestorrente.jitl.processor.sql.transformer.factory;
 
 import com.nestorrente.jitl.processor.sql.transformer.CellTransformer;
 import com.nestorrente.jitl.processor.sql.util.JdbcUtils;
+import org.jooq.lambda.Unchecked;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.OptionalLong;
 import java.util.function.Function;
 
 public class DateTypeTransformerFactory<T extends Date> extends HierarchyTransformerFactory<T> {
@@ -41,28 +44,31 @@ public class DateTypeTransformerFactory<T extends Date> extends HierarchyTransfo
 
 			}
 
-			long timestamp;
+			long timestamp = getTimestampFromValue(resultSet, columnIndex, value)
+					.orElseThrow(Unchecked.supplier(() -> {
 
-			if(value instanceof Number) {
+						String columnTypeName = resultSet.getMetaData().getColumnTypeName(columnIndex);
+						String className = this.dateImplementationClass.getName();
 
-				timestamp = ((Number) value).longValue();
+						throw new IllegalArgumentException(String.format("Cannot transform SQL's %s into Java's %s", columnTypeName, className));
 
-			} else if(value instanceof java.util.Date) {
-
-				java.util.Date date = (java.util.Date) value;
-
-				timestamp = date.getTime();
-
-			} else {
-
-				String columnTypeName = resultSet.getMetaData().getColumnTypeName(columnIndex);
-				String className = this.dateImplementationClass.getName();
-
-				throw new IllegalArgumentException(String.format("Cannot transform SQL's %s into Java's %s", columnTypeName, className));
-
-			}
+					}));
 
 			return this.timestampToDateImplementationConverter.apply(timestamp);
+
+		}
+
+		private OptionalLong getTimestampFromValue(ResultSet resultSet, int columnIndex, Object value) throws SQLException {
+
+			if(value instanceof Number) {
+				return OptionalLong.of(((Number) value).longValue());
+			}
+
+			if(value instanceof Date) {
+				return OptionalLong.of(((Date) value).getTime());
+			}
+
+			return OptionalLong.empty();
 
 		}
 

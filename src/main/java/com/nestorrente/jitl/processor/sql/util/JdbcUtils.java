@@ -123,13 +123,13 @@ public class JdbcUtils {
 			case Types.BLOB:
 				return resultSet.getBlob(columnIndex);
 			case Types.DATE:
-				return resultSet.getDate(columnIndex);
+				return resultSet.getDate(columnIndex, LOCAL_TIMEZONE_CALENDAR);
 			case Types.TIME:
 			case Types.TIME_WITH_TIMEZONE: // FIXME timezone loose - is it a real problem?
-				return resultSet.getTime(columnIndex);
+				return resultSet.getTime(columnIndex, LOCAL_TIMEZONE_CALENDAR);
 			case Types.TIMESTAMP:
 			case Types.TIMESTAMP_WITH_TIMEZONE: // FIXME timezone loose - is it a real problem?
-				return resultSet.getTimestamp(columnIndex);
+				return resultSet.getTimestamp(columnIndex, UTC_CALENDAR);
 
 			case Types.ARRAY:
 				return getArray(resultSet, columnIndex);
