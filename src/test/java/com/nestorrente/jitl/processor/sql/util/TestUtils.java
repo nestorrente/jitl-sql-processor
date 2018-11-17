@@ -31,7 +31,7 @@ public class TestUtils {
 			"INSERT INTO \"text_types_table\"(\"char_column\", \"long_varchar_column\") VALUES ('c', 'word')",
 			"INSERT INTO \"text_types_table\"(\"char_column\", \"long_varchar_column\") VALUES (null, null)",
 			"CREATE TABLE \"datetime_types_table\" (\"id\" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, \"bigint_column\" BIGINT, \"date_column\" DATE, \"time_column\" TIME, \"timestamp_column\" TIMESTAMP)",
-			"INSERT INTO \"datetime_types_table\"(\"bigint_column\", \"date_column\", \"time_column\", \"timestamp_column\") VALUES (1494093600000, '2017-05-06', '20:00:00', '2017-05-06 20:00:00')",
+			"INSERT INTO \"datetime_types_table\"(\"bigint_column\", \"date_column\", \"time_column\", \"timestamp_column\") VALUES (1494093600000, '2017-05-06', '20:00:00', '2017-05-06 18:00:00')",
 			"INSERT INTO \"datetime_types_table\"(\"bigint_column\", \"date_column\", \"time_column\", \"timestamp_column\") VALUES (null, null, null, null)",
 	};
 

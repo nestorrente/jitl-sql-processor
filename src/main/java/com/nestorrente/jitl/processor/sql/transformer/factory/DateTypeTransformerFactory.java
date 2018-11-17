@@ -45,7 +45,7 @@ public class DateTypeTransformerFactory<T extends Date> extends HierarchyTransfo
 			}
 
 			long timestamp = getTimestampFromValue(resultSet, columnIndex, value)
-					.orElseThrow(Unchecked.supplier(() -> {
+					.<IllegalArgumentException>orElseThrow(Unchecked.supplier(() -> {
 
 						String columnTypeName = resultSet.getMetaData().getColumnTypeName(columnIndex);
 						String className = this.dateImplementationClass.getName();
