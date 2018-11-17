@@ -26,7 +26,7 @@ Meanwhile, you can learn more about JITL in the **[jitl-core GitHub page](https:
 	<dependency>
 		<groupId>com.nestorrente</groupId>
 		<artifactId>jitl-sql-processor</artifactId>
-		<version>4.0.0</version>
+		<version>4.0.0-RC1</version>
 	</dependency>
 </dependencies>
 ```
