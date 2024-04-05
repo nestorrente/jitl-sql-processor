@@ -2,9 +2,7 @@
 
 ## Disclaimer
 
-_This library is currently on development. Please, don't use it in production environments._
-
-_Stable version 4.0.0 comming soon._
+_This library is currently discontinued. We encourage to not use it._
 
 ## Under development 🔨
 
